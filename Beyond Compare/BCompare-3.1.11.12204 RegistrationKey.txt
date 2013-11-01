@@ -1,8 +1,0 @@
-SERIAL
-WINDOWS
-name : allsoftinone
-serial : EQmxmDauN6NTKncYy6YaXUGKAbD9aPFE89LTNftJVHZrnzhGOOYsAldWMexgC7QlWBFo2EV4oAy70EKzpVnvJk
-
-LINUX
-name : allsoftinone 
-serial :  n3IYC4Pbz5dg9fblk5rJ7M88kbvBrjS6JGIjFOiCQCdRNnCa1De38P4Ely91iGqbsaJO9yaktHe5F3NH320t-k
