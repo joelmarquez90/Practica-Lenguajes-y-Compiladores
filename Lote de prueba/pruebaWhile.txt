@@ -1,0 +1,19 @@
+@
+DECLARE 
+	INT : [A,B,C]
+	REAL : [D,E]
+ENDDECLARE
+DECLARE
+	STRING : [F,G]
+ENDDECLARE
+
+A=0
+C=3
+
+WHILE(C>A)
+{
+	A=B+C
+	C=C-1
+}
+
+$

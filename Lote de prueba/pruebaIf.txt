@@ -1,0 +1,15 @@
+@
+DECLARE 
+	INT : [A,B,C]
+	REAL : [D,E]
+ENDDECLARE
+DECLARE
+	STRING : [F,G]
+ENDDECLARE
+
+A=0
+IF(INLIST(A+B;[A-C;9/C]) AND D == E)
+{
+	A=B+C;
+}
+$

@@ -1,0 +1,14 @@
+13
+Nodo: 12 8, IF, 11
+Nodo: 8 0, INLIST, 7
+Nodo: 0 -, __8, -
+Nodo: 7 5, ;, 6
+Nodo: 5 3, ;, 4
+Nodo: 3 1, ;, 2
+Nodo: 1 -, __8, -
+Nodo: 2 -, __10, -
+Nodo: 4 -, __9, -
+Nodo: 6 -, __11, -
+Nodo: 11 10, OUT, 9
+Nodo: 10 -, __ESTA_EN_LA_LISTA_, -
+Nodo: 9 -, H_V, -

@@ -1,0 +1,25 @@
+@
+DECLARE 
+	INT : [A,B,C]
+	REAL : [D,E]
+ENDDECLARE
+DECLARE
+	STRING : [F,G]
+ENDDECLARE
+
+A=0
+IF(D == E)
+{
+	E=1.
+	IF(EQUMAX(E/8.;[D/E;D+99.]) OR E != D)
+	{
+		F = "MAX"
+		G = "HOLA" + "CHAU" + "OK"
+		OUT(F)
+	}
+	ELSE
+	{
+		D=8.
+	}
+}
+$

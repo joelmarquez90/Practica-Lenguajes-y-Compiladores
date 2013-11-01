@@ -1,0 +1,36 @@
+@
+DECLARE 
+	INT : [A,B,C]
+	REAL : [D,E]
+ENDDECLARE
+DECLARE
+	STRING : [F,G]
+ENDDECLARE
+
+
+B=5
+IF(A<3 AND D == E)
+{
+	A = 10
+	IF( B>=4 OR E != D)
+	{
+		F = "MAX"
+		G = "HOLA" + "CHAU" + "OK"
+		OUT(F)
+	}
+	IF(INLIST(A;[A;B;C]))
+	{
+		OUT("CHAU")
+	}
+	WHILE(A>10)
+	{
+		A = A-1
+		OUT(A)
+	}
+}
+IF(B<=5)
+{
+	B=32
+	OUT(B)
+}
+$

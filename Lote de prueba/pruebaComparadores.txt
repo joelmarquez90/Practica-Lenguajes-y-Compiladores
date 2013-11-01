@@ -1,0 +1,33 @@
+@
+DECLARE 
+	INT : [A,B,C]
+	REAL : [D,E]
+ENDDECLARE
+DECLARE
+	STRING : [F,G]
+ENDDECLARE
+
+A=0
+IF(A<3 AND D == E)
+{
+	IF( B>=4 OR E != D)
+	{
+		F = "MAX"
+		G = "HOLA" + "CHAU" + "OK"
+		OUT(F)
+	}
+	IF(NOT EQUMIN(9;[C;D/E]))
+	{
+		OUT("CHAU")
+	}
+	WHILE(A>10)
+	{
+		OUT(F)
+		A = A+1
+	}
+}
+IF(B<=5)
+{
+	B=32
+}
+$

@@ -1,0 +1,92 @@
+Turbo Assembler	 Version 2.01	     26/11/12 15:21:41	    Page 1
+salida.txt
+
+
+
+      1	0000			     .MODEL SMALL
+      2
+      3	0000			     .STACK 200h
+      4
+      5	0000			     .DATA
+      6
+      7	0000  4C 61 20 6F 70 65	72+  msgerr DB "La operacion exedio el rango, overflow$"
+      8	      61 63 69 6F 6E 20	65+
+      9	      78 65 64 69 6F 20	65+
+     10	      6C 20 72 61 6E 67	6F+
+     11	      2C 20 6F 76 65 72	66+
+     12	      6C 6F 77 24
+     13	0027  0000		     T DW 0
+     14	0029  0000		     AUX1 DW 0
+     15
+     16
+     17	002B			     .CODE
+     18	0000			     MAIN:
+     19
+     20	0000  B8 000A		       MOV AX,10
+     21	0003  A3 0027r		       MOV T,AX
+     22	0006			     LABEL0:
+     23	0006  A1 0027r		       MOV AX,T
+     24	0009  2D 000A		       SUB AX,10
+     25	000C  75 13		       JNE LABEL1
+     26	000E  A1 0027r		       MOV AX,T
+     27	0011  2D 0001		       SUB AX,1
+     28	0014  72 0E		       JC ERRSUMRES
+     29	0016  A3 0029r		       MOV AUX1,AX
+     30	0019  A1 0029r		       MOV AX,AUX1
+     31	001C  A3 0027r		       MOV T,AX
+     32	001F  EB E5		       JMP LABEL0
+     33
+     34
+     35	0021			     LABEL1:
+     36
+     37
+     38	0021  EB 0D 90		     JMP FINAL
+     39
+     40	0024			     ERRSUMRES:
+     41	0024  B8 0000s		       MOV AX, SEG msgerr
+     42	0027  8E D8		       MOV DS, AX
+     43	0029  BA 0000r		       MOV DX, OFFSET msgerr
+     44	002C  B4 09		       MOV AH,9h
+     45	002E  CD 21		       INT 21h
+     46
+     47	0030			     FINAL:
+     48	0030  B8 4C00		       MOV AX, 4C00h  ;	Sale al	DOS
+     49	0033  CD 21		       INT 21h	      ;	Genera la interrupcion 21h
+     50				     END MAIN
+Turbo Assembler	 Version 2.01	     26/11/12 15:21:41	    Page 2
+Symbol Table
+
+
+
+
+Symbol Name			  Type	 Value
+
+??DATE				  Text	 "26/11/12"
+??FILENAME			  Text	 "salida  "
+??TIME				  Text	 "15:21:41"
+??VERSION			  Number 0201
+@CODE				  Text	 _TEXT
+@CODESIZE			  Text	 0
+@CPU				  Text	 0101H
+@CURSEG				  Text	 _TEXT
+@DATA				  Text	 DGROUP
+@DATASIZE			  Text	 0
+@FILENAME			  Text	 SALIDA
+@MODEL				  Text	 2
+@WORDSIZE			  Text	 2
+AUX1				  Word	 DGROUP:0029
+ERRSUMRES			  Near	 _TEXT:0024
+FINAL				  Near	 _TEXT:0030
+LABEL0				  Near	 _TEXT:0006
+LABEL1				  Near	 _TEXT:0021
+MAIN				  Near	 _TEXT:0000
+MSGERR				  Byte	 DGROUP:0000
+T				  Word	 DGROUP:0027
+
+Groups & Segments		  Bit Size Align  Combine Class
+
+DGROUP				  Group
+  STACK				  16  0200 Para	  Stack	  STACK
+  _DATA				  16  002B Word	  Public  DATA
+_TEXT				  16  0035 Word	  Public  CODE
+

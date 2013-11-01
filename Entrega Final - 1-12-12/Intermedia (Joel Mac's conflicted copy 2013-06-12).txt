@@ -1,0 +1,8 @@
+7
+Nodo: 6 2, C_P, 5
+Nodo: 2 1, =, 0
+Nodo: 1 -, INT1, -
+Nodo: 0 -, __9, -
+Nodo: 5 4, OUT, 3
+Nodo: 4 -, INT1, -
+Nodo: 3 -, H_V, -

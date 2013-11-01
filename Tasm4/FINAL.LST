@@ -1,0 +1,404 @@
+Turbo Assembler	 Version 2.01	     26/11/12 15:24:36	    Page 1
+final.asm
+
+
+
+      1	    0000			 .MODEL	LARGE
+      2					 .386
+      3	00000000			 .STACK	200h
+*Warning* final.asm(3) Assuming	segment	is 32-bit
+      4
+      5	    0000			 .DATA
+      6
+      7					 ;Variables del	sistema:
+      8		  = 001E			  MAX_TEXT equ 30
+      9	    0000  0D 0A	24			  ENDL db 0Dh, 0Ah, '$'
+     10	    0003  00000000			  _zero	dd 0.0
+     11	    0007  45 72	72 6F 72 3A 20+		  msgError1 db "Error: division	por cero",'$'
+     12		  64 69	76 69 73 69 6F+
+     13		  6E 20	70 6F 72 20 63+
+     14		  65 72	6F 24
+     15	    0020  45 72	72 6F 72 3A 20+		  msgError2 db "Error: desbordamiento",'$'
+     16		  64 65	73 62 6F 72 64+
+     17		  61 6D	69 65 6E 74 6F+
+     18		  24
+     19	    0036  45 72	72 6F 72 3A 20+		  msgError3 db "Error: indice fuera de rango",'$'
+     20		  69 6E	64 69 63 65 20+
+     21		  66 75	65 72 61 20 64+
+     22		  65 20	72 61 6E 67 6F+
+     23		  24
+     24	    0053  0000FFFF			  _cotaEnteros dd 65535
+     25
+     26					 ;Variables del	usuario:
+     27	    0057  00000000		 A dd 0
+     28	    005B  00000000		 B dd 0
+     29	    005F  00000000		 C dd 0
+     30
+     31					 ;Variables auxiliares:
+     32	    0063  1E*(??) 24		 AUXSTR	db MAX_TEXT dup	(?), '$'
+     33
+     34
+     35	    0082			 .CODE
+     36
+     37					 include strings.asm
+1    38					 ;************************************************************
+1    39
+1    40					 ; devuelve en BX la cantidad de caracteres que	tiene un string
+1    41					 ; DS:SI apunta	al string.
+1    42					 ;
+1    43	    0000			 STRLEN	PROC
+1    44	    0000  BB 0000		     mov bx,0
+1    45
+1    46	    0003			 STRL01:
+1    47	    0003  80 38	24		     cmp BYTE PTR [SI+BX],'$'
+1    48	    0006  74 05	90 90		     je	STREND
+1    49	    000A  43			     inc BX
+1    50	    000B  EB F6			     jmp STRL01
+1    51
+1    52	    000D			 STREND:
+1    53	    000D  CB			     ret
+1    54
+1    55	    000E			 STRLEN	ENDP
+1    56
+Turbo Assembler	 Version 2.01	     26/11/12 15:24:36	    Page 2
+final.asm
+
+
+
+1    57
+1    58					 ;*********************************************************************8
+1    59					 ; copia DS:SI a ES:DI;	busca la cantidad de caracteres
+1    60					 ;
+1    61	    000E			 COPIAR	PROC
+1    62	    000E  0E E8	FFEE		     call STRLEN		 ; busco la cantidad de	caracteres
+1    63	    0012  83 FB	1E		     cmp bx,MAX_TEXT
+1    64	    0015  7E 05	90 90		     jle COPIARSIZEOK
+1    65
+1    66	    0019  BB 001E		     mov bx,MAX_TEXT
+1    67
+1    68	    001C			 COPIARSIZEOK:
+1    69	    001C  8B CB			     mov cx,bx			 ; la copia se hace de 'CX' caracteres
+1    70	    001E  FC			     cld			 ; cld es para que la copia se realice
+1    71									 ; hacia adelante"
+1    72	    001F  F3> A4		     rep movsb			 ; copia la cadea
+1    73	    0021  B0 24			     mov al,'$'			 ; carácter terminador
+1    74	    0023  88 05			     mov BYTE PTR [DI],al	 ; el registro DI quedo	apuntando al
+1    75									 ; final
+1    76	    0025  CB			     ret
+1    77
+1    78	    0026			 COPIAR	ENDP
+1    79
+1    80
+1    81					 ;*******************************************************
+1    82					 ; concatena DS:SI al final de ES:DI.
+1    83					 ;
+1    84					 ; busco el size del primer string
+1    85					 ; sumo	el size	del segundo string
+1    86					 ; si la suma excede MAX_TEXT, copio solamente MAX_TEXT	caracteres
+1    87					 ; si la suma NO excede	MAX_TEXT, copio	el total de caracteres que tiene el segundo string
+1    88					 ;
+1    89	    0026			 CONCAT	PROC
+1    90	    0026  1E			     push ds
+1    91	    0027  56			     push si
+1    92	    0028  0E E8	FFD4		     call STRLEN		 ; busco la cantidad de	caracteres del
+1    93									 ;2do string
+1    94	    002C  8B D3			     mov dx,bx			 ; guardo en DX	la cantidad de caracteres
+1    95									 ;en el	origen.
+1    96	    002E  8B F7			     mov si,di
+1    97	    0030  06			     push es
+1    98	    0031  1F			     pop ds
+1    99	    0032  0E E8	FFCA		     call STRLEN		 ; tama#o del 1er string
+1   100	    0036  03 FB			     add di,bx			 ; DI ya queda apuntando al final del
+1   101									 ;primer string
+1   102	    0038  03 DA			     add bx,dx			 ; tama#o total
+1   103	    003A  83 FB	1E		     cmp bx,MAX_TEXT	      ;	excede el tama#o maximo?
+1   104	    003D  7F 07	90 90		     jg	CONCATSIZEMAL
+1   105
+1   106	    0041			 CONCATSIZEOK:			 ; La suma no excede el	maximo,	copio
+1   107									 ; todos
+1   108	    0041  8B CA			     mov cx,dx ; los caracteres	del segundo string.
+1   109	    0043  EB 08	90		     jmp CONCATSIGO
+1   110
+1   111	    0046			 CONCATSIZEMAL:			 ; La suma de caracteres de los	2 strings
+1   112									 ; exceden el maximo
+1   113	    0046  83 EB	1E		     sub bx,MAX_TEXT
+Turbo Assembler	 Version 2.01	     26/11/12 15:24:36	    Page 3
+final.asm
+
+
+
+1   114	    0049  2B D3			     sub dx,bx
+1   115	    004B  8B CA			     mov cx,dx			 ; copio lo maximo permitido el	resto
+1   116									 ;se pierde.
+1   117	    004D			 CONCATSIGO:
+1   118
+1   119	    004D  1E			     push ds
+1   120	    004E  07			     pop es
+1   121	    004F  5E			     pop si
+1   122	    0050  1F			     pop ds
+1   123	    0051  FC			     cld			 ; cld es para que la copia se realice
+1   124									 ;hacia	adelante
+1   125	    0052  F3> A4		     rep movsb			 ; copia la cadea
+1   126	    0054  B0 24			     mov al,'$'			 ; carácter terminador
+1   127	    0056  88 05			     mov BYTE PTR [DI],al	 ; el registro DI quedo	apuntando al
+1   128									 ;final
+1   129	    0058  CB			     ret
+1   130
+1   131	    0059			 CONCAT	ENDP
+1   132
+    133					 include reales.asm
+1   134
+1   135	    0059  000A			 ten dw	10
+1   136
+1   137					 putc macro char
+1   138					 push ax
+1   139					 mov al, char
+1   140					 mov ah, 0eh
+1   141					 int 10h
+1   142					 pop ax
+1   143					 endm
+1   144
+1   145	    005B			 print_num proc	near
+1   146
+1   147	    005B  52			 push dx
+1   148	    005C  50			 push ax
+1   149	    005D  3D 0000		 cmp ax, 0
+1   150	    0060  75 0D	90 90		 jnz not_zero
+1   151					 putc '0'
+2   152	    0064  50			 push ax
+2   153	    0065  B0 30			 mov al, '0'
+2   154	    0067  B4 0E			 mov ah, 0eh
+2   155	    0069  CD 10			 int 10h
+2   156	    006B  58			 pop ax
+1   157	    006C  EB 15	90		 jmp printed
+1   158
+1   159	    006F			 not_zero:
+1   160					 ; the check sign of ax,
+1   161					 ; make	absolute if it's negative:
+1   162	    006F  3D 0000		 cmp ax, 0
+1   163	    0072  79 0C	90 90		 jns positive
+1   164	    0076  F7 D8			 neg ax
+1   165					 putc '-'
+2   166	    0078  50			 push ax
+2   167	    0079  B0 2D			 mov al, '-'
+2   168	    007B  B4 0E			 mov ah, 0eh
+2   169	    007D  CD 10			 int 10h
+2   170	    007F  58			 pop ax
+Turbo Assembler	 Version 2.01	     26/11/12 15:24:36	    Page 4
+final.asm
+
+
+
+1   171
+1   172	    0080			 positive:
+1   173	    0080  E8 0003		 call print_num_uns
+1   174	    0083			 printed:
+1   175	    0083  58			 pop ax
+1   176	    0084  5A			 pop dx
+1   177	    0085  C3			 ret
+1   178	    0086			 print_num endp
+1   179
+1   180					 ; this	procedure prints out an	unsigned
+1   181					 ; number in ax	(not just a single digit)
+1   182					 ; allowed values are from 0 to	65535 (ffff)
+1   183	    0086			 print_num_uns proc near
+1   184	    0086  50			 push ax
+1   185	    0087  53			 push bx
+1   186	    0088  51			 push cx
+1   187	    0089  52			 push dx
+1   188
+1   189					 ; flag	to prevent printing zeros before number:
+1   190	    008A  B9 0001		 mov cx, 1
+1   191					 ; (result of "/ 10000"	is always less or equal	to 9).
+1   192	    008D  BB 2710		 mov bx, 10000 ; 2710h - divider.
+1   193					 ; ax is zero?
+1   194	    0090  3D 0000		 cmp ax, 0
+1   195	    0093  74 3A	90 90		 jz print_zero
+1   196	    0097			 begin_print:
+1   197					 ; check divider (if zero go to	end_print):
+1   198	    0097  83 FB	00		 cmp bx,0
+1   199	    009A  74 3B	90 90		 jz end_print
+1   200					 ; avoid printing zeros	before number:
+1   201	    009E  83 F9	00		 cmp cx, 0
+1   202	    00A1  74 08	90 90		 je calc
+1   203					 ; if ax<bx then result	of div will be zero:
+1   204	    00A5  3B C3			 cmp ax, bx
+1   205	    00A7  72 16	90 90		 jb skip
+1   206	    00AB			 calc:
+1   207	    00AB  B9 0000		 mov cx, 0 ; set flag.
+1   208	    00AE  BA 0000		 mov dx, 0
+1   209	    00B1  F7 F3			 div bx	; ax = dx:ax / bx (dx=remainder).
+1   210					 ; print last digit
+1   211					 ; ah is always	zero, so it's ignored
+1   212	    00B3  04 30			 add al, 30h ; convert to ascii	code.
+1   213					 putc al
+2   214	    00B5  50			 push ax
+2   215	    00B6  8A C0			 mov al, al
+2   216	    00B8  B4 0E			 mov ah, 0eh
+2   217	    00BA  CD 10			 int 10h
+2   218	    00BC  58			 pop ax
+1   219	    00BD  8B C2			 mov ax, dx ; get remainder from last div.
+1   220
+1   221	    00BF			 skip:
+1   222					 ; calculate bx=bx/10
+1   223	    00BF  50			 push ax
+1   224	    00C0  BA 0000		 mov dx, 0
+1   225	    00C3  8B C3			 mov ax, bx
+1   226	    00C5  2E: F7 36 0059r	 div cs: ten ; ax = dx:ax / 10 (dx=remainder).
+1   227	    00CA  8B D8			 mov bx, ax
+Turbo Assembler	 Version 2.01	     26/11/12 15:24:36	    Page 5
+final.asm
+
+
+
+1   228	    00CC  58			 pop ax
+1   229	    00CD  EB C8			 jmp begin_print
+1   230
+1   231	    00CF			 print_zero:
+1   232					 putc '0'
+2   233	    00CF  50			 push ax
+2   234	    00D0  B0 30			 mov al, '0'
+2   235	    00D2  B4 0E			 mov ah, 0eh
+2   236	    00D4  CD 10			 int 10h
+2   237	    00D6  58			 pop ax
+1   238	    00D7			 end_print:
+1   239	    00D7  5A			 pop dx
+1   240	    00D8  59			 pop cx
+1   241	    00D9  5B			 pop bx
+1   242	    00DA  58			 pop ax
+1   243	    00DB  C3			 ret
+1   244	    00DC			 print_num_uns endp
+    245
+    246	    00DC			 MAIN:
+    247	    00DC  B8 0000s		 MOV AX, @DATA
+    248	    00DF  8E D8			 MOV DS,AX
+    249					 ;Se asigna B a	A
+    250					 ;Se comprueba si la asignacion	supera la cota de enteros
+    251	    00E1  DB 06	0053r		 FILD _cotaEnteros
+    252	    00E5  DB 06	005Br		 FILD B
+    253	    00E9  D9 C9			 FXCH
+    254	    00EB  D8 D9			 FCOMP
+    255	    00ED  9B DF	E0		 FSTSW AX
+    256	    00F0  DD C0			 FFREE ST(0)
+    257	    00F2  9E			 SAHF
+    258	    00F3  76 1E	90 90		 JBE errorOverflow
+    259	    00F7  DB 06	005Br		 FILD B
+    260	    00FB  DB 1E	0057r		 FISTP A
+    261					 _cuerpo_sent-1:
+**Error** final.asm(45)	Illegal	instruction
+    262	    00FF  EB 31	90		 JMP finProg
+    263	    0102			 errorDivision:
+    264	    0102  BA 0007r		 MOV DX, OFFSET	msgError1
+    265	    0105  B4 09			 MOV ah, 9
+    266	    0107  CD 21			 int 21h
+    267	    0109  BA 0000r		 MOV DX, OFFSET	ENDL
+    268	    010C  B4 09			 MOV ah, 9
+    269	    010E  CD 21			 int 21h
+    270	    0110  EB 20	90		 JMP finProg
+    271	    0113			 errorOverflow:
+    272	    0113  BA 0020r		 MOV DX, OFFSET	msgError2
+    273	    0116  B4 09			 MOV ah, 9
+    274	    0118  CD 21			 int 21h
+    275	    011A  BA 0000r		 MOV DX, OFFSET	ENDL
+    276	    011D  B4 09			 MOV ah, 9
+    277	    011F  CD 21			 int 21h
+    278	    0121  EB 0F	90		 JMP finProg
+    279	    0124			 errorLimite:
+    280	    0124  BA 0036r		 MOV DX, OFFSET	msgError3
+    281	    0127  B4 09			 MOV ah, 9
+    282	    0129  CD 21			 int 21h
+    283	    012B  BA 0000r		 MOV DX, OFFSET	ENDL
+Turbo Assembler	 Version 2.01	     26/11/12 15:24:36	    Page 6
+final.asm
+
+
+
+    284	    012E  B4 09			 MOV ah, 9
+    285	    0130  CD 21			 int 21h
+    286					 ;Fin del programa
+    287	    0132			 finProg:
+    288	    0132  B8 4C00		 MOV AX,4C00h
+    289	    0135  CD 21			 int 21h
+    290
+    291					 END MAIN
+Turbo Assembler	 Version 2.01	     26/11/12 15:24:36	    Page 7
+Symbol Table
+
+
+
+
+Symbol Name			  Type	 Value
+
+??DATE				  Text	 "26/11/12"
+??FILENAME			  Text	 "final	  "
+??TIME				  Text	 "15:24:36"
+??VERSION			  Number 0201
+@CODE				  Text	 FINAL_TEXT
+@CODESIZE			  Text	 1
+@CPU				  Text	 0D0FH
+@CURSEG				  Text	 FINAL_TEXT
+@DATA				  Text	 DGROUP
+@DATASIZE			  Text	 1
+@FILENAME			  Text	 FINAL
+@MODEL				  Text	 5
+@WORDSIZE			  Text	 2
+A				  Dword	 DGROUP:0057
+AUXSTR				  Byte	 DGROUP:0063
+B				  Dword	 DGROUP:005B
+BEGIN_PRINT			  Near	 FINAL_TEXT:0097
+C				  Dword	 DGROUP:005F
+CALC				  Near	 FINAL_TEXT:00AB
+CONCAT				  Far	 FINAL_TEXT:0026
+CONCATSIGO			  Near	 FINAL_TEXT:004D
+CONCATSIZEMAL			  Near	 FINAL_TEXT:0046
+CONCATSIZEOK			  Near	 FINAL_TEXT:0041
+COPIAR				  Far	 FINAL_TEXT:000E
+COPIARSIZEOK			  Near	 FINAL_TEXT:001C
+ENDL				  Byte	 DGROUP:0000
+END_PRINT			  Near	 FINAL_TEXT:00D7
+ERRORDIVISION			  Near	 FINAL_TEXT:0102
+ERRORLIMITE			  Near	 FINAL_TEXT:0124
+ERROROVERFLOW			  Near	 FINAL_TEXT:0113
+FINPROG				  Near	 FINAL_TEXT:0132
+MAIN				  Near	 FINAL_TEXT:00DC
+MAX_TEXT			  Number 001E
+MSGERROR1			  Byte	 DGROUP:0007
+MSGERROR2			  Byte	 DGROUP:0020
+MSGERROR3			  Byte	 DGROUP:0036
+NOT_ZERO			  Near	 FINAL_TEXT:006F
+POSITIVE			  Near	 FINAL_TEXT:0080
+PRINTED				  Near	 FINAL_TEXT:0083
+PRINT_NUM			  Near	 FINAL_TEXT:005B
+PRINT_NUM_UNS			  Near	 FINAL_TEXT:0086
+PRINT_ZERO			  Near	 FINAL_TEXT:00CF
+SKIP				  Near	 FINAL_TEXT:00BF
+STREND				  Near	 FINAL_TEXT:000D
+STRL01				  Near	 FINAL_TEXT:0003
+STRLEN				  Far	 FINAL_TEXT:0000
+TEN				  Word	 FINAL_TEXT:0059
+_COTAENTEROS			  Dword	 DGROUP:0053
+_ZERO				  Dword	 DGROUP:0003
+Turbo Assembler	 Version 2.01	     26/11/12 15:24:36	    Page 8
+Symbol Table
+
+
+
+
+Macro Name
+
+PUTC
+
+Groups & Segments		  Bit Size Align  Combine Class
+
+DGROUP				  Group
+  STACK				  32  0200 Para	  Stack	  STACK
+  _DATA				  16  0082 Word	  Public  DATA
+FINAL_TEXT			  16  0137 Word	  Public  CODE
+Turbo Assembler	 Version 2.01	     26/11/12 15:24:36	    Page 9
+Error Summary
+
+
+
+*Warning* final.asm(3) Assuming	segment	is 32-bit
+**Error** final.asm(45)	Illegal	instruction
+

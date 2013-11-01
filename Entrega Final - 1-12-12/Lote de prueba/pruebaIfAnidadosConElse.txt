@@ -1,0 +1,39 @@
+@
+DECLARE 
+	INT : [A,B,C,D,E]
+ENDDECLARE
+DECLARE
+	STRING : [F,G]
+ENDDECLARE
+
+A=0
+E=1
+IF(D == E)
+{
+	IF(EQUMAX(A/8;[D/E;D+99]) OR E != D)
+	{
+		F = "MAX"
+		G = "HOLA" + "CHAU" + "OK"
+		OUT(F)
+	}
+	ELSE
+	{
+		D=8
+		OUT(D)
+	}
+}
+ELSE	
+{
+	IF(EQUMIN(C;[D;E;C]))
+	{
+		G="LISTO"
+		OUT(G)
+	}
+	ELSE
+	{
+		C=29786
+		OUT(C)
+	}
+}
+
+$

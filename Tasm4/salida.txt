@@ -1,0 +1,45 @@
+.MODEL SMALL
+
+.STACK 200h
+
+.DATA
+
+msgerr DB "La operacion exedio el rango, overflow$"
+T DW 0
+AUX1 DW 0
+
+
+.CODE
+MAIN:
+
+  MOV AX,10
+  MOV T,AX
+LABEL0:
+  MOV AX,T
+  SUB AX,10
+  JNE LABEL1
+  MOV AX,T
+  SUB AX,1
+  JC ERRSUMRES
+  MOV AUX1,AX
+  MOV AX,AUX1
+  MOV T,AX
+  JMP LABEL0
+
+
+LABEL1:
+
+
+JMP FINAL
+
+ERRSUMRES:
+  MOV AX, SEG msgerr
+  MOV DS, AX
+  MOV DX, OFFSET msgerr
+  MOV AH,9h
+  INT 21h
+
+FINAL:
+  MOV AX, 4C00h  ; Sale al DOS
+  INT 21h        ; Genera la interrupcion 21h
+END MAIN

@@ -1,0 +1,44 @@
+@
+DECLARE 
+	INT : [A,B,C]
+	REAL : [D,E]
+ENDDECLARE
+DECLARE
+	STRING : [F,G]
+ENDDECLARE
+
+A=0
+C=3
+B=5
+WHILE(B>A)
+{
+	A=B+C
+	B=B-1
+	WHILE(A<C)
+	{
+		C=3+C
+		OUT("C:")
+		OUT(C)
+	}
+	OUT("A:")
+	OUT(A)
+	OUT("B:")
+	OUT(B)
+}
+
+##WHILE(B>A)
+##{
+##	A=B+C
+##	B=B-1
+##	WHILE(A<C)
+##	{
+##		WHILE(C<5)
+##		{
+##			B=5+B
+##			C=C-1
+##		}
+##		C=3+C
+##	}
+##
+##}
+$

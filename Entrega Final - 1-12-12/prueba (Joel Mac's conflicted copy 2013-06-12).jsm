@@ -1,0 +1,8 @@
+@
+DECLARE
+	INT : [INT1]
+ENDDECLARE
+
+INT1 = 9
+OUT(INT1)
+$

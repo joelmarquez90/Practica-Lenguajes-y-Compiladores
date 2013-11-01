@@ -1,0 +1,24 @@
+23
+Nodo: 22 2, IF, 21
+Nodo: 2 0, ==, 1
+Nodo: 0 -, A, -
+Nodo: 1 -, B, -
+Nodo: 21 5, WHILE, 20
+Nodo: 5 3, <, 4
+Nodo: 3 -, B, -
+Nodo: 4 -, C, -
+Nodo: 20 12, C_P, 19
+Nodo: 12 8, C_P, 11
+Nodo: 8 7, =, 6
+Nodo: 7 -, B, -
+Nodo: 6 -, C, -
+Nodo: 11 10, =, 9
+Nodo: 10 -, A, -
+Nodo: 9 -, C, -
+Nodo: 19 15, IF, 18
+Nodo: 15 13, >, 14
+Nodo: 13 -, C, -
+Nodo: 14 -, A, -
+Nodo: 18 17, =, 16
+Nodo: 17 -, B, -
+Nodo: 16 -, __3, -

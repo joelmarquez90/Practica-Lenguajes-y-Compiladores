@@ -1,0 +1,6 @@
+@
+IF (INLIST(8;[8;10;9;11]))
+{
+	OUT ("ESTA EN LA LISTA")
+}
+$
